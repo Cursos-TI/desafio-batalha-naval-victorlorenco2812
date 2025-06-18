@@ -1,0 +1,151 @@
+#include <stdio.h>
+#include <stdbool.h> // Para usar o tipo booleano 'bool'
+
+// Define o tamanho do tabuleiro
+#define TAMANHO_TABULEIRO 10
+// Define o tamanho fixo dos navios
+#define TAMANHO_NAVIO 3
+// Representa água no tabuleiro
+#define AGUA 0
+// Representa uma parte de um navio no tabuleiro
+#define NAVIO 3
+
+// Função para inicializar o tabuleiro com água
+void inicializarTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            tabuleiro[i][j] = AGUA;
+        }
+    }
+}
+
+// Função para exibir o tabuleiro
+void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    printf("  "); // Espaço para alinhar as colunas
+    for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+        printf("%d ", j); // Números das colunas
+    }
+    printf("\n");
+
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        printf("%d ", i); // Números das linhas
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            printf("%d ", tabuleiro[i][j]); // Exibe o conteúdo da célula (água ou navio)
+        }
+        printf("\n");
+    }
+}
+
+/**
+ * @brief Função para verificar se a posição de um navio é válida (dentro dos limites e sem sobreposição).
+ *
+ * @param tabuleiro A matriz do tabuleiro.
+ * @param linha_inicial A linha inicial do navio.
+ * @param coluna_inicial A coluna inicial do navio.
+ * @param direcao A direção do navio (0: horizontal, 1: vertical, 2: diagonal principal, 3: diagonal secundária).
+ * @return true se a posição for válida, false caso contrário.
+ */
+bool verificarPosicaoValida(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO],
+                             int linha_inicial, int coluna_inicial, int direcao) {
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        int linha_atual = linha_inicial;
+        int coluna_atual = coluna_inicial;
+
+        if (direcao == 0) { // Horizontal
+            coluna_atual += i;
+        } else if (direcao == 1) { // Vertical
+            linha_atual += i;
+        } else if (direcao == 2) { // Diagonal principal (linha e coluna aumentam)
+            linha_atual += i;
+            coluna_atual += i;
+        } else if (direcao == 3) { // Diagonal secundária (linha aumenta, coluna diminui)
+            linha_atual += i;
+            coluna_atual -= i;
+        }
+
+        // Verifica se a posição está dentro dos limites do tabuleiro
+        if (linha_atual < 0 || linha_atual >= TAMANHO_TABULEIRO ||
+            coluna_atual < 0 || coluna_atual >= TAMANHO_TABULEIRO) {
+            return false; // Fora dos limites
+        }
+
+        // Verifica se já existe um navio na posição
+        if (tabuleiro[linha_atual][coluna_atual] == NAVIO) {
+            return false; // Sobreposição
+        }
+    }
+    return true; // Posição válida
+}
+
+/**
+ * @brief Função para posicionar um navio no tabuleiro.
+ *
+ * @param tabuleiro A matriz do tabuleiro.
+ * @param linha_inicial A linha inicial do navio.
+ * @param coluna_inicial A coluna inicial do navio.
+ * @param direcao A direção do navio (0: horizontal, 1: vertical, 2: diagonal principal, 3: diagonal secundária).
+ * @return true se o navio foi posicionado com sucesso, false caso contrário.
+ */
+bool posicionarNavio(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO],
+                      int linha_inicial, int coluna_inicial, int direcao) {
+
+    if (!verificarPosicaoValida(tabuleiro, linha_inicial, coluna_inicial, direcao)) {
+        printf("Erro: Não foi possível posicionar o navio em (%d, %d) na direção %d. Verifique os limites ou sobreposição.\n", linha_inicial, coluna_inicial, direcao);
+        return false;
+    }
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        int linha_atual = linha_inicial;
+        int coluna_atual = coluna_inicial;
+
+        if (direcao == 0) { // Horizontal
+            coluna_atual += i;
+        } else if (direcao == 1) { // Vertical
+            linha_atual += i;
+        } else if (direcao == 2) { // Diagonal principal
+            linha_atual += i;
+            coluna_atual += i;
+        } else if (direcao == 3) { // Diagonal secundária
+            linha_atual += i;
+            coluna_atual -= i;
+        }
+        tabuleiro[linha_atual][coluna_atual] = NAVIO; // Marca a posição com o navio
+    }
+    return true;
+}
+
+int main() {
+    int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO];
+
+    // Inicializa o tabuleiro com água
+    inicializarTabuleiro(tabuleiro);
+
+    // Posicionamento dos navios (coordenadas e direções fixas para simplificação)
+
+    // Navios horizontais/verticais
+    // Navio 1: Horizontal
+    if (posicionarNavio(tabuleiro, 1, 1, 0)) { // Linha 1, Coluna 1, Horizontal
+        printf("Navio 1 posicionado com sucesso.\n");
+    }
+    // Navio 2: Vertical
+    if (posicionarNavio(tabuleiro, 5, 8, 1)) { // Linha 5, Coluna 8, Vertical
+        printf("Navio 2 posicionado com sucesso.\n");
+    }
+
+    // Navios diagonais
+    // Navio 3: Diagonal principal (linha e coluna aumentam)
+    if (posicionarNavio(tabuleiro, 0, 0, 2)) { // Linha 0, Coluna 0, Diagonal Principal
+        printf("Navio 3 posicionado com sucesso.\n");
+    }
+    // Navio 4: Diagonal secundária (linha aumenta, coluna diminui)
+    if (posicionarNavio(tabuleiro, 2, 7, 3)) { // Linha 2, Coluna 7, Diagonal Secundária
+        printf("Navio 4 posicionado com sucesso.\n");
+    }
+
+    // Exibe o tabuleiro completo com os navios
+    printf("\n--- Tabuleiro de Batalha Naval ---\n");
+    exibirTabuleiro(tabuleiro);
+
+    return 0;
+}
